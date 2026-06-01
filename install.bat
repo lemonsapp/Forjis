@@ -48,20 +48,40 @@ echo [4/6] Descargando modelos de voz y vision...
 "%VPY%" download_models.py
 echo.
 
-REM ---------- 5) API key ----------
-echo [5/6] Configurando el cerebro ^(API de Claude^)...
-if exist api_key.txt (
-  echo     Ya existe api_key.txt, la dejo como esta.
-) else (
-  echo     Necesitas una API key de Anthropic.
-  echo     Sacala gratis en:  https://console.anthropic.com  -^>  API Keys
+REM ---------- 5) Cerebro ----------
+echo [5/6] Elegi el CEREBRO de FORJIS:
+echo.
+echo     [1] CLAUDE  ^(nube^)  - mas inteligente y rapido. Necesita una API key
+echo                  de Anthropic ^(hay credito gratis para empezar^) e internet.
+echo     [2] LOCAL   ^(Ollama^) - 100%% GRATIS y sin internet, corre en tu PC.
+echo                  Instala Ollama y baja un modelo de ~4.7 GB ^(mejor con GPU^).
+echo.
+echo     ^(Despues lo podes cambiar cuando quieras con el boton de la pantalla.^)
+echo.
+set "BRAIN="
+set /p "BRAIN=    Elegi 1 o 2 (Enter = 1 Claude): "
+
+if "!BRAIN!"=="2" (
   echo.
-  set /p "APIKEY=    Pega tu API key y Enter (o deja vacio para hacerlo despues): "
-  if not "!APIKEY!"=="" (
-    <nul set /p "=!APIKEY!" > api_key.txt
-    echo     Clave guardada en api_key.txt
+  echo     --- Configurando cerebro LOCAL ---
+  call setup_local.bat quiet
+) else (
+  echo.
+  echo     --- Configurando cerebro CLAUDE ---
+  "%VPY%" -c "import state; state.set('brain','claude')" 2>nul
+  if exist api_key.txt (
+    echo     Ya existe api_key.txt, la dejo como esta.
   ) else (
-    echo     Saltado. Despues crea api_key.txt y pega ahi tu clave.
+    echo     Necesitas una API key de Anthropic.
+    echo     Sacala gratis en:  https://console.anthropic.com  -^>  API Keys
+    echo.
+    set /p "APIKEY=    Pega tu API key y Enter (o deja vacio para hacerlo despues): "
+    if not "!APIKEY!"=="" (
+      <nul set /p "=!APIKEY!" > api_key.txt
+      echo     Clave guardada en api_key.txt
+    ) else (
+      echo     Saltado. Despues crea api_key.txt y pega ahi tu clave.
+    )
   )
 )
 echo.

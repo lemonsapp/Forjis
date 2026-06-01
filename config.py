@@ -72,8 +72,16 @@ PIPER_VOICES = {
 SPEED_SCALE = {"lento": 1.30, "normal": 1.0, "rapido": 0.85}
 TMP_WAV = os.path.join(BASE_DIR, "_forjis_say.wav")
 
+# ====================================================================
+#  CEREBRO: dos opciones intercambiables (ver brain.py)
+#    "claude" -> nube, Anthropic API (más inteligente, necesita API key)
+#    "local"  -> Ollama offline (100% gratis y sin conexión)
+#  Se elige en el instalador y se puede conmutar en la HUD; queda guardado
+#  en forjis_state.json. Override puntual con la variable FORJIS_BRAIN.
+# ====================================================================
+DEFAULT_BRAIN = "claude"            # cerebro por defecto si no hay nada elegido
+
 # ---- Cerebro Claude (Anthropic API) ----
-USE_CLAUDE = True
 CLAUDE_MODEL = "claude-haiku-4-5"   # rápido y sigue instrucciones (ideal por voz)
 CLAUDE_MAX_TOKENS = 320
 CLAUDE_HISTORY_MAX = 24             # cuántos mensajes recordar en la sesión
@@ -97,22 +105,16 @@ def get_api_key():
             return f.read().strip()
     return None
 
-# ---- Cerebro LLM (Ollama, local) ----
-LLM_ENABLED = True
-OLLAMA_URL = "http://localhost:11434/api/chat"
-LLM_MODEL = "qwen2.5:7b"     # entra en 6 GB de VRAM (RTX 2060) y es muy bueno en español
+# ---- Cerebro LLM local (Ollama) ----
+# El system prompt y las herramientas las arma brain_core (paridad con Claude).
+OLLAMA_HOST = "http://localhost:11434"
+OLLAMA_URL = OLLAMA_HOST + "/api/chat"
+OLLAMA_TAGS_URL = OLLAMA_HOST + "/api/tags"
+LLM_MODEL = "qwen2.5:7b"     # entra en 6 GB de VRAM (RTX 2060), bueno en español y con tool-calling
 LLM_TEMPERATURE = 0.6
-LLM_NUM_PREDICT = 160        # máximo de tokens por respuesta (corto = más natural por voz)
+LLM_NUM_PREDICT = 320        # máximo de tokens por respuesta
 LLM_HISTORY_TURNS = 6        # cuántos turnos de conversación recordar
-LLM_TIMEOUT = 60             # segundos
-LLM_SYSTEM = (
-    "Sos FORJIS, un asistente personal por voz inspirado en JARVIS de Iron Man. "
-    "Hablás en español rioplatense (argentino), con vos y un toque de carácter elegante. "
-    "Tus respuestas se LEEN EN VOZ ALTA, así que: sé breve (1 a 3 frases), "
-    "natural y conversacional. NO uses markdown, ni asteriscos, ni emojis, ni listas, "
-    "ni símbolos raros. No expliques de más. Si no sabés algo, decilo con honestidad. "
-    "Tratá al usuario como 'jefe' de vez en cuando, sin abusar."
-)
+LLM_TIMEOUT = 90             # segundos (el primer turno carga el modelo en VRAM)
 
 # ---- Ojos: cámara + gestos (Fase 3) ----
 HAND_MODEL = os.path.join(MODELS_DIR, "hand_landmarker.task")

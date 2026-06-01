@@ -73,11 +73,12 @@ def info_event() -> dict:
     return {
         "type": "info",
         "brain": "on" if brain.available() else "off",
+        "backend": brain.get_backend_name(),     # "claude" | "local"
+        "model": brain.current_model(),
         "voice": state.get("voice", "hombre"),
         "speed": state.get("speed", "normal"),
         "personality": state.get("personality", config.DEFAULT_PERSONALITY),
         "wake": config.WAKE_NAME,
-        "model": config.CLAUDE_MODEL,
         "mock": MOCK,
     }
 
@@ -230,6 +231,17 @@ async def _handle_client(msg: dict):
     elif t == "set_personality":
         state.set("personality", (msg.get("text") or config.DEFAULT_PERSONALITY))
         emit(info_event())
+    elif t == "set_brain":
+        applied = brain.set_backend(msg.get("backend"))
+        emit(info_event())
+        if applied:
+            label = "cerebro local, gratis y offline" if applied == "local" else "cerebro Claude"
+            ready = brain.available()
+            txt = f"Listo, cambié al {label}." if ready else (
+                "Cambié al cerebro local, pero todavía no lo encuentro. Asegurate de que Ollama esté corriendo."
+                if applied == "local" else
+                "Cambié al cerebro Claude, pero falta la API key.")
+            threading.Thread(target=voice.say, args=(txt,), daemon=True).start()
     elif t == "demo":
         threading.Thread(target=demo, daemon=True).start()
 

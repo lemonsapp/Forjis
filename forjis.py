@@ -21,11 +21,14 @@ def main():
 
     ears = Ears()
 
-    # Estado del cerebro (Claude)
+    # Estado del cerebro (Claude nube / Ollama local, según lo elegido)
     if brain.available():
-        print(f"[FORJIS] Cerebro: Claude ON ({config.CLAUDE_MODEL})")
+        print(f"[FORJIS] Cerebro: {brain.backend_label()} ON")
+    elif brain.get_backend_name() == "local":
+        print("[FORJIS] Cerebro: LOCAL OFF — Ollama no responde o falta el modelo "
+              "(ollama pull " + config.LLM_MODEL + ")")
     else:
-        print("[FORJIS] Cerebro: OFF — falta la API key (api_key.txt o ANTHROPIC_API_KEY)")
+        print("[FORJIS] Cerebro: CLAUDE OFF — falta la API key (api_key.txt o ANTHROPIC_API_KEY)")
 
     print("[FORJIS] Calibrando ruido de fondo... (quedate en silencio 1 segundo)")
     ears.calibrate()

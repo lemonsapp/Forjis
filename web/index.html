@@ -153,6 +153,8 @@
     <div class="sep"></div>
     <div class="ipwrap"><input id="pers" type="text" placeholder="Personalidad…"></div>
     <button id="savePers">✓</button>
+    <div class="sep"></div>
+    <button id="brainBtn" title="Cambiar cerebro: Claude (nube) ↔ Local (gratis/offline)">🧠 —</button>
     <button id="demo">Demo</button>
   </div>
 </div>
@@ -230,10 +232,15 @@ function telemetry(m){
 }
 function drawMicTicks(v){const n=micTicks.children.length;const on=Math.round(v*n);
   for(let i=0;i<n;i++)micTicks.children[i].classList.toggle('a',i<on);}
+let backend='claude';
 function applyInfo(i){
   const bd=document.getElementById('brainDot'),bt=document.getElementById('brainTxt');
-  if(i.brain==='on'){bd.classList.add('on');bt.textContent='núcleo ON';}else{bd.classList.remove('on');bt.textContent='núcleo OFF';}
+  if(i.backend)backend=i.backend;
+  const isLocal=backend==='local';
+  if(i.brain==='on'){bd.classList.add('on');bt.textContent=(isLocal?'local':'Claude')+' ON';}
+  else{bd.classList.remove('on');bt.textContent=(isLocal?'local':'Claude')+' OFF';}
   document.getElementById('modelPill').textContent=i.mock?'modo visual':(i.model||'');
+  document.getElementById('brainBtn').textContent='🧠 '+(isLocal?'Local':'Claude');
   document.getElementById('voicePill').textContent='voz: '+(i.voice||'')+' · '+(i.speed||'');
   if(i.personality)document.getElementById('pers').value=i.personality;
   mark('voiceSeg','voice',i.voice);mark('speedSeg','speed',i.speed);
@@ -249,6 +256,7 @@ document.getElementById('send').onclick=sc;cmd.addEventListener('keydown',e=>{if
 document.querySelectorAll('#voiceSeg button').forEach(b=>b.onclick=()=>send({type:'set_voice',voice:b.dataset.voice}));
 document.querySelectorAll('#speedSeg button').forEach(b=>b.onclick=()=>send({type:'set_voice',speed:b.dataset.speed}));
 document.getElementById('savePers').onclick=()=>send({type:'set_personality',text:document.getElementById('pers').value.trim()});
+document.getElementById('brainBtn').onclick=()=>send({type:'set_brain',backend:backend==='local'?'claude':'local'});
 document.getElementById('demo').onclick=()=>send({type:'demo'});
 
 // ===================== FONDO (partículas) =====================

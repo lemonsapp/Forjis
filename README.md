@@ -12,7 +12,9 @@ te responde con voz, aprende de vos y tiene una HUD futurista con reactor animad
 ## ✨ Qué hace
 
 - 🗣️ **Hablás y te entiende** — reconocimiento de voz local (Whisper), en español.
-- 🧠 **Cerebro Claude** — entiende lenguaje libre, charla y **decide acciones solo**.
+- 🧠 **Cerebro a elección** — **Claude** (nube, más inteligente) o **100% local y gratis**
+  con [Ollama](https://ollama.com) (offline, sin costo). Lo elegís en el instalador y lo
+  cambiás cuando quieras con un botón en la HUD. **Las dos opciones controlan la PC igual.**
 - 🦾 **Controla la PC** — abre/cierra apps, volumen, multimedia, búsquedas en Google/YouTube.
 - 🔊 **Te habla** — voz neural (Piper), de hombre o mujer, ajustable. 100% offline.
 - 👁️ **Control por gestos** — mové el mouse con la mano usando la webcam.
@@ -28,15 +30,23 @@ te responde con voz, aprende de vos y tiene una HUD futurista con reactor animad
 
 1. **Descargá** este repo (botón verde **Code → Download ZIP**) y descomprimilo.
 2. Doble clic en **`install.bat`**. Hace todo solo: instala lo necesario, baja los modelos
-   y te pide tu **API key de Anthropic**.
+   y te pregunta qué **cerebro** querés:
+   - **[1] Claude** (nube) → te pide tu **API key de Anthropic**.
+   - **[2] Local** (gratis) → instala **Ollama** y baja el modelo `qwen2.5:7b` (~4.7 GB).
 3. Abrí FORJIS con el ícono **FORJIS** del Escritorio. ¡Listo!
+
+> ¿Ya instalaste y querés pasar a modo gratis después? Doble clic en **`setup_local.bat`**
+> (instala Ollama + el modelo y deja FORJIS en local). Para volver a Claude, usá el botón 🧠 de la HUD.
 
 > ¿Se trabó algo? Mirá **`SETUP_PROMPT.md`**: tiene un prompt para pegarle a Claude y que
 > te ayude a instalar y configurar lo que falte.
 
 ### Requisitos
 - Windows 10/11
-- Una **API key** de Anthropic → [console.anthropic.com](https://console.anthropic.com) (poné un tope de gasto, con Haiku es centavos)
+- **Para el cerebro Claude:** una **API key** de Anthropic → [console.anthropic.com](https://console.anthropic.com)
+  (poné un tope de gasto; con Haiku son centavos) e internet.
+- **Para el cerebro local (gratis):** [Ollama](https://ollama.com) (lo instala el instalador) y
+  ~5 GB de disco. Anda en CPU, pero con **GPU** (4 GB+ de VRAM) vuela.
 - Micrófono y parlantes
 - (Opcional) webcam para los gestos
 
@@ -56,20 +66,26 @@ Decí **"FORJIS"** seguido de tu orden, o **aplaudí dos veces** 👏👏:
 ## ⚙️ Personalización (`config.py`)
 - **Micrófono/parlante:** `INPUT_DEVICE_MATCH` / `OUTPUT_DEVICE_MATCH` — dejá `""` para el
   dispositivo por defecto de Windows, o poné parte del nombre de tu aparato (ej. `"SSL 2"`).
-- **Modelo del cerebro:** `CLAUDE_MODEL` (por defecto `claude-haiku-4-5`, rápido y barato).
+- **Cerebro:** se elige al instalar y se cambia con el botón 🧠 de la HUD (queda guardado).
+  Defaults en `config.py`: `DEFAULT_BRAIN` (`claude`/`local`), `CLAUDE_MODEL`
+  (`claude-haiku-4-5`) y `LLM_MODEL` (`qwen2.5:7b` para el modo local).
 - **Reconocimiento:** `WHISPER_MODEL` (`small` por defecto; `medium` = más preciso pero más lento).
 - **Aplauso:** `CLAP_PEAK` / `CLAP_CREST` si se activa solo o no engancha.
 
 ## 🧱 Cómo está hecho
-`faster-whisper` (oídos) · `Anthropic SDK` (cerebro, tool use) · `piper-tts` (voz) ·
-`opencv` + `mediapipe` (ojos) · `FastAPI` + `pywebview` (HUD/app) · `pyautogui` (acciones).
+`faster-whisper` (oídos) · cerebro intercambiable: **`Anthropic SDK`** (Claude) u **`Ollama`**
+(LLM local), ambos con tool use · `piper-tts` (voz) · `opencv` + `mediapipe` (ojos) ·
+`FastAPI` + `pywebview` (HUD/app) · `pyautogui` (acciones).
 
-Arquitectura y detalles en **`HANDOFF.md`**.
+El cerebro es un dispatcher (`brain.py`) sobre `brain_claude.py` y `brain_local.py`, que
+comparten herramientas y system prompt en `brain_core.py` (por eso las dos opciones hacen
+lo mismo). Arquitectura y detalles en **`HANDOFF.md`**.
 
 ## ⚠️ Privacidad
-La **voz** (reconocimiento y síntesis) es **100% local**. El **cerebro** usa la API de
-Anthropic, así que el texto de tus órdenes viaja a Claude para responder. Tu API key queda
-sólo en tu PC (`api_key.txt`, ignorado por git).
+La **voz** (reconocimiento y síntesis) es **100% local**. El **cerebro** depende de la opción:
+- **Local (Ollama):** todo queda en tu PC, **nada sale a internet**. Privacidad total.
+- **Claude:** el texto de tus órdenes viaja a Anthropic para responder. Tu API key queda
+  sólo en tu PC (`api_key.txt`, ignorado por git).
 
 ## 📜 Licencia
 MIT — usalo, modificalo y compartilo. Si hacés algo copado, ¡mostralo! 🙌

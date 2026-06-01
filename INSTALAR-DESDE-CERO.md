@@ -20,6 +20,24 @@ No hace falta saber programar. Vas a copiar y pegar comandos, nada más.
 
 ---
 
+## 🧠 Antes que nada: elegí el "cerebro" de FORJIS
+
+FORJIS puede pensar de **dos formas** (lo elegís cuando corras el instalador, y lo podés
+cambiar después con un botón 🧠 en la pantalla):
+
+| | **Claude** (nube) | **Local** (gratis) |
+|---|---|---|
+| Inteligencia | 🥇 La más alta | 👍 Muy buena |
+| Costo | Centavos por uso | **$0, gratis** |
+| Internet | Necesita | **No necesita (offline)** |
+| Qué hace falta | Una **API key** (Paso 4) | Que el instalador baje **Ollama** + un modelo (~4.7 GB) |
+| Mejor si… | Querés lo más inteligente | Querés que sea gratis, privado y sin internet |
+
+👉 Si elegís **Local**, podés **saltear el Paso 4** (la API key). El instalador se encarga
+de todo lo demás. Si elegís **Claude**, seguí el Paso 4 para sacar tu clave.
+
+---
+
 ## 🟦 PASO 1 — Abrir la terminal (CMD)
 
 La "terminal" es esa pantalla negra donde se escriben comandos. Se llama **CMD**.
@@ -90,7 +108,10 @@ Te queda la carpeta `Forjis` en el Escritorio.
 
 ## 🔑 PASO 4 — Conseguir tu "código" de Claude (API key)
 
-El **cerebro** de FORJIS usa la inteligencia de Claude (la IA de Anthropic).
+> 🆓 **¿Elegiste el cerebro LOCAL (gratis)?** Saltá este paso entero y andá al **Paso 5**.
+> El instalador baja Ollama y el modelo solo; no necesitás ninguna clave.
+
+Si elegís el cerebro **Claude**, usa la inteligencia de Claude (la IA de Anthropic).
 Para eso necesitás una **API key**: es como una contraseña personal que conecta TU FORJIS con la IA.
 
 > 💡 Cada persona usa **su propia** key. La mía no se comparte (así nadie gasta el saldo de otro).
@@ -120,10 +141,17 @@ El instalador hace **todo automáticamente**, en orden:
 - ✅ Crea un "entorno aislado" para no ensuciar tu PC.
 - ✅ Instala todas las piezas (reconocimiento de voz, voz, visión, etc.).
 - ✅ Descarga los modelos de voz.
-- 🔑 **Te pide tu API key** → pegá la que copiaste en el Paso 4 y Enter.
+- 🧠 **Te pregunta qué cerebro querés:**
+  - Escribís **`1`** (Claude) → te pide tu **API key** (pegá la del Paso 4 y Enter).
+  - Escribís **`2`** (Local, gratis) → instala **Ollama** y baja el modelo `qwen2.5:7b`
+    (~4.7 GB, una sola vez). Esto tarda un rato según tu internet.
 - ✅ Crea el ícono **FORJIS** en tu Escritorio.
 
 Cuando termine te pregunta si lo querés abrir. Decí que **sí** (`s`).
+
+> 🔁 **¿Te arrepentiste o querés probar el otro cerebro?** Una vez abierto FORJIS, tocá el
+> botón **🧠** abajo en la pantalla para cambiar Claude ↔ Local cuando quieras. Y si elegiste
+> Claude pero después querés el modo gratis, doble clic en **`setup_local.bat`**.
 
 > ⏳ La **primera vez** que FORJIS escucha, descarga el modelo que entiende tu voz (Whisper).
 > Por eso el primer arranque tarda un poquito más y necesita internet esa vez. Después, vuela.
@@ -169,8 +197,15 @@ pip install -r requirements.txt
 :: 4) Descargar los modelos de voz
 python download_models.py
 
-:: 5) Crear el archivo con tu API key (reemplazá sk-ant-TU-CLAVE)
+:: 5a) CEREBRO CLAUDE: crear el archivo con tu API key (reemplazá sk-ant-TU-CLAVE)
 echo sk-ant-TU-CLAVE> api_key.txt
+python -c "import state; state.set('brain','claude')"
+
+:: 5b) ...o CEREBRO LOCAL (gratis): instalar Ollama + bajar el modelo
+::     winget install -e --id Ollama.Ollama
+::     ollama pull qwen2.5:7b
+::     python -c "import state; state.set('brain','local')"
+::     (o simplemente: doble clic en setup_local.bat)
 
 :: 6) Abrir FORJIS
 python app.py
@@ -189,7 +224,9 @@ Eso es exactamente lo que automatiza el instalador. 🙂
 | El instalador se cierra solo o tira error | Hacé clic derecho en `install.bat` → **Ejecutar como administrador**. |
 | Abrí el ZIP pero no anda | Tenés que **Extraer todo** primero, no correrlo desde adentro del ZIP. |
 | FORJIS no me escucha | Revisá que tu micro sea el predeterminado en Windows. Mientras tanto, escribí la orden. |
-| "El cerebro está OFF" | Falta o está mal la API key. Abrí `api_key.txt` y pegá tu clave `sk-ant-...` (sin espacios). |
+| "El cerebro está OFF" (modo Claude) | Falta o está mal la API key. Abrí `api_key.txt` y pegá tu clave `sk-ant-...` (sin espacios). |
+| "El cerebro está OFF" (modo Local) | Ollama no está corriendo o falta el modelo. Doble clic en `setup_local.bat`, o en CMD: `ollama pull qwen2.5:7b`. Fijate el ícono de Ollama en la bandeja. |
+| El modo local va muy lento | Es normal sin GPU. Probá un modelo más liviano (`ollama pull qwen2.5:3b` y cambiá `LLM_MODEL` en `config.py`), o usá el cerebro Claude. |
 
 ### 🅱️ Plan B — Instalar Python sin winget (a mano)
 1. Entrá a **https://www.python.org/downloads/** y descargá Python 3.12.
