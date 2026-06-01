@@ -5,6 +5,7 @@ Levanta el servidor por dentro y muestra la HUD en una ventana propia del sistem
 
 Correr:  pythonw app.py   (sin consola)  ó  python app.py
 """
+import os
 import time
 import asyncio
 import threading
@@ -14,6 +15,8 @@ import uvicorn
 import webview
 
 import server as srv
+
+ICON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web", "favicon.png")
 
 
 class Api:
@@ -66,7 +69,10 @@ def main():
         background_color="#02040a",
         js_api=Api(),
     )
-    webview.start()
+    try:
+        webview.start(icon=ICON)
+    except Exception:
+        webview.start()   # algunos backends no aceptan icon: arrancamos igual
 
 
 if __name__ == "__main__":

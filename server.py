@@ -32,6 +32,7 @@ WEB_DIR = os.path.join(config.BASE_DIR, "web")
 async def lifespan(app):
     global main_loop
     main_loop = asyncio.get_running_loop()
+    threading.Thread(target=brain.warmup, daemon=True).start()  # levanta Ollama si el cerebro es local
     threading.Thread(target=telemetry_loop, daemon=True).start()
     if not MOCK:
         threading.Thread(target=audio_loop, daemon=True).start()
@@ -193,6 +194,21 @@ def demo():
 @app.get("/")
 def index():
     return FileResponse(os.path.join(WEB_DIR, "index.html"))
+
+
+@app.get("/favicon.ico")
+def favicon_ico():
+    return FileResponse(os.path.join(WEB_DIR, "favicon.ico"))
+
+
+@app.get("/favicon.svg")
+def favicon_svg():
+    return FileResponse(os.path.join(WEB_DIR, "favicon.svg"))
+
+
+@app.get("/favicon.png")
+def favicon_png():
+    return FileResponse(os.path.join(WEB_DIR, "favicon.png"))
 
 
 @app.websocket("/ws")

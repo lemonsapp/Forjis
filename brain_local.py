@@ -7,7 +7,11 @@ la PC igual que el de pago. Modelo por defecto: qwen2.5:7b (ver config.LLM_MODEL
 Requisitos: tener Ollama corriendo (https://ollama.com) y el modelo descargado
 (`ollama pull qwen2.5:7b`). El instalador y setup_local.bat lo dejan listo.
 """
+import os
 import json
+import time
+import shutil
+import subprocess
 
 import requests
 
@@ -19,6 +23,47 @@ _history = []  # [{"role":"user"/"assistant","content":str}] de la sesión
 
 def reset():
     _history.clear()
+
+
+def _ollama_exe():
+    """Encuentra el ejecutable de Ollama (PATH o instalación típica en Windows)."""
+    exe = shutil.which("ollama")
+    if exe:
+        return exe
+    cand = os.path.join(os.environ.get("LOCALAPPDATA", ""), "Programs", "Ollama", "ollama.exe")
+    return cand if os.path.isfile(cand) else None
+
+
+def _server_alive() -> bool:
+    """¿Responde el server de Ollama (sin importar si el modelo está bajado)?"""
+    try:
+        return requests.get(config.OLLAMA_TAGS_URL, timeout=3).status_code == 200
+    except Exception:
+        return False
+
+
+def ensure_server(timeout: float = 20.0) -> bool:
+    """Si Ollama no está corriendo, lo levanta (`ollama serve`) y espera a que responda."""
+    if _server_alive():
+        return True
+    exe = _ollama_exe()
+    if not exe:
+        return False
+    try:
+        flags = 0
+        if os.name == "nt":
+            flags = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
+        subprocess.Popen([exe, "serve"], creationflags=flags,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         stdin=subprocess.DEVNULL)
+    except Exception:
+        return False
+    end = time.time() + timeout
+    while time.time() < end:
+        if _server_alive():
+            return True
+        time.sleep(0.5)
+    return False
 
 
 def available() -> bool:
@@ -71,8 +116,14 @@ def handle(command: str) -> str:
         return "¿Sí? Decime."
 
     if not available():
-        return ("No tengo el cerebro local listo. Fijate que Ollama esté corriendo y que el modelo "
-                "esté descargado, o cambiá a modo Claude.")
+        # Quizás Ollama solo estaba apagado: lo levantamos y reintentamos.
+        ensure_server()
+        if not available():
+            if _server_alive():
+                return (f"Ollama está corriendo pero no encuentro el modelo {config.LLM_MODEL}. "
+                        "Bajalo con 'ollama pull " + config.LLM_MODEL + "', o cambiá a modo Claude.")
+            return ("No pude arrancar el cerebro local. Fijate que Ollama esté instalado, "
+                    "o cambiá a modo Claude.")
 
     convo = [{"role": "system", "content": brain_core.build_system_text(local=True)}]
     convo += _history

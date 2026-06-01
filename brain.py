@@ -64,6 +64,16 @@ def available() -> bool:
     return _backend().available()
 
 
+def warmup():
+    """Prepara el backend activo (p.ej. levanta Ollama si el cerebro es local)."""
+    fn = getattr(_backend(), "ensure_server", None)
+    if callable(fn):
+        try:
+            fn()
+        except Exception:
+            pass
+
+
 def reset():
     brain_claude.reset()
     brain_local.reset()

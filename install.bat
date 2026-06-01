@@ -88,7 +88,7 @@ echo.
 
 REM ---------- 6) Acceso directo ----------
 echo [6/6] Creando acceso directo FORJIS en el Escritorio...
-powershell -NoProfile -Command "$ws=New-Object -ComObject WScript.Shell; $l=$ws.CreateShortcut([Environment]::GetFolderPath('Desktop')+'\FORJIS.lnk'); $l.TargetPath='%CD%\.venv\Scripts\pythonw.exe'; $l.Arguments='app.py'; $l.WorkingDirectory='%CD%'; $l.IconLocation='%SystemRoot%\System32\shell32.dll,13'; $l.Description='FORJIS - asistente JARVIS'; $l.Save()"
+powershell -NoProfile -Command "$ws=New-Object -ComObject WScript.Shell; $l=$ws.CreateShortcut([Environment]::GetFolderPath('Desktop')+'\FORJIS.lnk'); $l.TargetPath='%CD%\.venv\Scripts\pythonw.exe'; $l.Arguments='app.py'; $l.WorkingDirectory='%CD%'; $l.IconLocation='%CD%\web\favicon.ico'; $l.Description='FORJIS - asistente JARVIS'; $l.Save()"
 echo     OK
 echo.
 
