@@ -1,0 +1,2 @@
+# Esta carpeta guarda los modelos de voz y de manos.
+# Se descargan solos con: python download_models.py  (o el instalador).
