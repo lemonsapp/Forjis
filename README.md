@@ -23,6 +23,9 @@ te responde con voz, aprende de vos y tiene una HUD futurista con reactor animad
 
 ## 🚀 Instalación (1 clic)
 
+> 🆕 **¿Nunca programaste?** Seguí la **[guía de cero para principiantes →
+> `INSTALAR-DESDE-CERO.md`](INSTALAR-DESDE-CERO.md)** (instala Python, la API key y todo, paso a paso).
+
 1. **Descargá** este repo (botón verde **Code → Download ZIP**) y descomprimilo.
 2. Doble clic en **`install.bat`**. Hace todo solo: instala lo necesario, baja los modelos
    y te pide tu **API key de Anthropic**.
